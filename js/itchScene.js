@@ -18,9 +18,6 @@ let height = window.innerHeight;
 let spawnedBodies = [];
 let grabbedBody = null;
 
-let timesFed = 0;
-const satisfiedThreshold = 3; // Number of food items to feed before opening a new tab
-
 // Create renderer
 const render = Render.create({
     element: document.body,
@@ -29,7 +26,7 @@ const render = Render.create({
     width: width,
     height: height,
     wireframes: false,
-    background: "#000000"
+    background: "#FFF78D"
     }
 });
 
@@ -38,23 +35,7 @@ const eatSFX = new Audio("../assets/audio/cartoon_chomp_sfx.mp3");
 //const backgroundMusic = new Audio("../assets/audio/backgroundmusic.mp3");
 //const sizzleSFX = new Audio("../assets/audio/sizzleSFX.mp3");
 
-const backgroundSky = Bodies.rectangle(width / 2, height / 2, width, height, {
-    isStatic: true,
-    isSensor: true,
-    render: {
-        fillStyle: "#87CEEB"
-    }
-});
-
-const backgroundGrass = Bodies.rectangle(width / 2, height - 50, width, 100, {
-    isStatic: true,
-    isSensor: true,
-    render: {
-        fillStyle: "#228B22"
-    }
-});
-
-const cloudBanner = Bodies.rectangle(
+const banner = Bodies.rectangle(
     width/2,
     128,
     512,
@@ -64,7 +45,7 @@ const cloudBanner = Bodies.rectangle(
         isSensor: true,
         render: {
             sprite: {
-                texture: "../assets/sprites/cloud_banner.png",
+                texture: "../assets/sprites/banner.png",
                 xScale: 1,
                 yScale: 1
             }
@@ -73,8 +54,8 @@ const cloudBanner = Bodies.rectangle(
 );
 
 const hotdogStand = Bodies.rectangle(
-    width - 100,
-    height - 100,
+    width - 128,
+    height - 128,
     256,
     256,
     {
@@ -83,20 +64,24 @@ const hotdogStand = Bodies.rectangle(
         render: {
             sprite: {
                 texture: "../assets/sprites/hotdog_stand.png",
-                xScale: 1,
-                yScale: 1
+                xScale: 2,
+                yScale: 2
             }
         }
     }
 
 )
 
+const eaterIdleSprite = "../assets/sprites/the_eater_idle.png";
+const eaterHungrySprite = "../assets/sprites/the_eater_hungry.png";
+const eaterSatisfiedSprite = "../assets/sprites/the_eater_satisfied.png";
+
 const theEater = Bodies.rectangle(width /2, 400, 50, 50, {
     isStatic: true,
     isSensor: true,
     render: {
         sprite: {
-            texture: "../assets/sprites/the_eater.png",
+            texture: eaterIdleSprite,
             xScale: 1,
             yScale: 1
         }
@@ -105,7 +90,7 @@ const theEater = Bodies.rectangle(width /2, 400, 50, 50, {
 
 const mouthSensor = Bodies.rectangle(
     theEater.position.x, 
-    theEater.position.y, 
+    theEater.position.y + 64, 
     10, 10, 
     {
     isStatic: true,
@@ -116,8 +101,8 @@ const mouthSensor = Bodies.rectangle(
     }
     });
 
-const leftPupilOriginX = theEater.position.x - 50;
-const leftPupilOriginY = theEater.position.y - 60;
+const leftPupilOriginX = theEater.position.x - 64;
+const leftPupilOriginY = theEater.position.y - 32;
 
 const leftPupil = Bodies.circle(
     leftPupilOriginX, 
@@ -127,13 +112,13 @@ const leftPupil = Bodies.circle(
         isStatic: true,
         isSensor: true,
         render: {
-            fillStyle: "white"
+            fillStyle: "black"
         }
     }
 )
 
-const rightPupilOriginX = theEater.position.x + 50;
-const rightPupilOriginY = theEater.position.y - 60;
+const rightPupilOriginX = theEater.position.x + 64;
+const rightPupilOriginY = theEater.position.y - 32;
 
 const rightPupil = Bodies.circle(
     rightPupilOriginX, 
@@ -143,30 +128,7 @@ const rightPupil = Bodies.circle(
         isStatic: true,
         isSensor: true,
         render: {
-            fillStyle: "white"
-        }
-    }
-)
-
-const bellySprites = [
-    "../assets/sprites/belly_stage1.png", 
-    "../assets/sprites/belly_stage2.png",
-    "../assets/sprites/belly_stage3.png"
-];
-
-const belly = Bodies.circle(
-    theEater.position.x, 
-    theEater.position.y + 150,
-    50,
-    {
-        isStatic: true,
-        isSensor: true,
-        render: {
-            sprite: {
-                texture: bellySprites[0],
-                xScale: 1,
-                yScale: 1
-            }
+            fillStyle: "black"
         }
     }
 )
@@ -180,19 +142,16 @@ const rightWall = walls[3];
 
 // Add everything to the world
 Composite.add(engine.world, [
-    backgroundSky,
-    backgroundGrass,
-    cloudBanner,
+    banner,
     hotdogStand,
     ground,
     leftWall,
     rightWall,
     ceiling,
-    theEater,
     leftPupil,
     rightPupil,
-    mouthSensor,
-    belly
+    theEater,
+    mouthSensor
 ]);
 
 let watermelon1 = spawnWatermelon(100, height - 100, 0.8);
@@ -225,13 +184,32 @@ window.addEventListener("resize", function () {
   }, 300);
 });
 
+let satisfiedSpriteTimer = null;
+
+function setEaterSprite(texture){
+    if (theEater && theEater.render && theEater.render.sprite) {
+        theEater.render.sprite.texture = texture;
+    }
+}
+
+function clearSatisfiedSpriteTimer(){
+    if (satisfiedSpriteTimer != null) {
+        clearTimeout(satisfiedSpriteTimer);
+        satisfiedSpriteTimer = null;
+    }
+}
+
 //runs every frame
 Events.on(engine, "beforeUpdate", function(){
     if (grabbedBody != null){
-        
-        pupilsLookAt(mouse.position);
+        pupilsLookAt(mouse.position,24);
+        setEaterSprite(eaterHungrySprite);
+    } else if (satisfiedSpriteTimer != null){
+        pupilsIdle();
+        setEaterSprite(eaterSatisfiedSprite);
     } else{
         pupilsIdle();
+        setEaterSprite(eaterIdleSprite);
     }
 });
 
@@ -272,33 +250,22 @@ Events.on(engine, "collisionStart", function(event){
                 eatSFX.currentTime = 0;
                 eatSFX.play();
 
-                timesFed++;
+                clearSatisfiedSpriteTimer();
+                setEaterSprite(eaterSatisfiedSprite);
+                satisfiedSpriteTimer = setTimeout(function() {
+                    satisfiedSpriteTimer = null;
+                    if (grabbedBody == null) {
+                        setEaterSprite(eaterIdleSprite);
+                    }
+                }, 1000);
 
-                switch (timesFed) {
-                    case 0:
-                        belly.render.sprite.texture = bellySprites[0];
-                        break;
-                    case 1:
-                        belly.render.sprite.texture = bellySprites[1];
-                        break;
-                    case 2:
-                        belly.render.sprite.texture = bellySprites[2];
-                        break;
-                    
-                    //times fed > 2, keep belly at stage 3
-                    default:
-                        belly.render.sprite.texture = bellySprites[2];
-                        break;
-                }
-
-                if (timesFed >= satisfiedThreshold) {
-                    openNewTabTimer = setTimeout(function() {
-                        window.open("https://japerx.itch.io/");
-                    }, 1500); // Open new tab after 1.5 seconds
-                }
+                
+                openNewTabTimer = setTimeout(function() {
+                    window.open("https://japerx.itch.io/");
+                }, 1000); // Open new tab after 1.5 seconds
             }, eatDelay);
             
-            console.log("food entered mouth area");
+            //console.log("food entered mouth area");
         }
     }
 });
@@ -309,7 +276,7 @@ Events.on(engine, "collisionEnd", function(event) {
 
     //detect when food leaves mouth sensor
     if (labels.includes("food") && labels.includes("mouth")) {
-      console.log("food left mouth area");
+      //console.log("food left mouth area");
     }
   }
 });

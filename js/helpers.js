@@ -18,6 +18,10 @@ function randomRange(min, max) {
     return Math.random() * (max - min) + min;
 }
 
+function lerp(start, end, amount) {
+    return start + (end - start) * amount;
+}
+
 function removeBody(body){
     Composite.remove(engine.world, body);
 
@@ -26,30 +30,57 @@ function removeBody(body){
     });
 }
 
+let idleLookTarget = null;
+let lastIdleLookChange = 0;
+
 function pupilsIdle(){
-    Body.setPosition(leftPupil, {x : leftPupilOriginX, y : leftPupilOriginY});
-    Body.setPosition(rightPupil, {x : rightPupilOriginX, y : rightPupilOriginY});
+    const now = performance.now();
+
+    if (idleLookTarget == null || now - lastIdleLookChange >= 3000) {
+        const eyeCenterX = (leftPupilOriginX + rightPupilOriginX) / 2;
+        const eyeCenterY = (leftPupilOriginY + rightPupilOriginY) / 2;
+        const outwardDistance = 120;
+        const verticalSpread = 40;
+
+        const direction = Math.random() < 0.5 ? -1 : 1;
+        const targetX = eyeCenterX + direction * outwardDistance;
+        const targetY = eyeCenterY + randomRange(-verticalSpread, verticalSpread);
+
+        idleLookTarget = {
+            x: targetX,
+            y: targetY
+        };
+        lastIdleLookChange = now;
+    }
+
+    pupilsLookAt(idleLookTarget,16);
 }
 
-function pupilsLookAt(targetPosition){
-    const maxDistance = 30;
+function pupilsLookAt(targetPosition, maxDistance){
+    const smoothAmount = 0.15;
 
     let leftPupilDir = getNormalVector(
         {x : leftPupilOriginX, y : leftPupilOriginY}, 
         targetPosition);
 
+    const leftTargetX = leftPupilOriginX + leftPupilDir.x * maxDistance;
+    const leftTargetY = leftPupilOriginY + leftPupilDir.y * maxDistance;
+
     Body.setPosition(leftPupil, {
-        x: leftPupilOriginX + leftPupilDir.x * maxDistance,
-        y: leftPupilOriginY + leftPupilDir.y * maxDistance
+        x: lerp(leftPupil.position.x, leftTargetX, smoothAmount),
+        y: lerp(leftPupil.position.y, leftTargetY, smoothAmount)
     });
 
     let rightPupilDir = getNormalVector(
         {x : rightPupilOriginX, y : rightPupilOriginY}, 
         targetPosition);
 
+    const rightTargetX = rightPupilOriginX + rightPupilDir.x * maxDistance;
+    const rightTargetY = rightPupilOriginY + rightPupilDir.y * maxDistance;
+
     Body.setPosition(rightPupil, {
-        x: rightPupilOriginX + rightPupilDir.x * maxDistance,
-        y: rightPupilOriginY + rightPupilDir.y * maxDistance
+        x: lerp(rightPupil.position.x, rightTargetX, smoothAmount),
+        y: lerp(rightPupil.position.y, rightTargetY, smoothAmount)
     });
 
 }

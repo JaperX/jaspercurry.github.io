@@ -21,4 +21,26 @@ const render = Render.create({
 });
 
 
+// Create physics engine
+const engine = Engine.create();
 
+let width = window.innerWidth;
+let height = window.innerHeight;
+
+
+// Add everything to the world
+Composite.add(engine.world, [
+    backgroundSky,
+    backgroundGrass,
+    cloudBanner,
+    hotdogStand,
+    ground,
+    leftWall,
+    rightWall,
+    ceiling,
+    theEater,
+    leftPupil,
+    rightPupil,
+    mouthSensor,
+    belly
+]);
