@@ -31,6 +31,18 @@ const render = Render.create({
 });
 
 
+//ASSETS
+const banner_image = "../assets/sprites/banner.png";
+
+const hotdog_stand_image = "../assets/sprites/hotdog_stand.png";
+const hotdog_image = "../assets/sprites/hotdog_256x128.png";
+
+const watermelon_image = "../assets/sprites/watermelon_64x64.png";
+
+const eaterIdleSprite = "../assets/sprites/the_eater_idle.png";
+const eaterHungrySprite = "../assets/sprites/the_eater_hungry.png";
+const eaterSatisfiedSprite = "../assets/sprites/the_eater_satisfied.png";
+
 const eatSFX = new Audio("../assets/audio/cartoon_chomp_sfx.mp3");
 //const backgroundMusic = new Audio("../assets/audio/backgroundmusic.mp3");
 //const sizzleSFX = new Audio("../assets/audio/sizzleSFX.mp3");
@@ -45,7 +57,7 @@ const banner = Bodies.rectangle(
         isSensor: true,
         render: {
             sprite: {
-                texture: "../assets/sprites/banner.png",
+                texture: banner_image,
                 xScale: 1,
                 yScale: 1
             }
@@ -63,7 +75,7 @@ const hotdogStand = Bodies.rectangle(
         isSensor: true,
         render: {
             sprite: {
-                texture: "../assets/sprites/hotdog_stand.png",
+                texture: hotdog_stand_image,
                 xScale: 2,
                 yScale: 2
             }
@@ -72,9 +84,7 @@ const hotdogStand = Bodies.rectangle(
 
 )
 
-const eaterIdleSprite = "../assets/sprites/the_eater_idle.png";
-const eaterHungrySprite = "../assets/sprites/the_eater_hungry.png";
-const eaterSatisfiedSprite = "../assets/sprites/the_eater_satisfied.png";
+
 
 const theEater = Bodies.rectangle(width /2, 400, 50, 50, {
     isStatic: true,
