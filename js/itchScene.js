@@ -32,18 +32,22 @@ const render = Render.create({
 
 
 //ASSETS
-const banner_image = "../assets/sprites/banner.png";
+const sprite_prefix = "/assets/sprites/";
+const audio_prefix = "/assets/audio/";
 
-const hotdog_stand_image = "../assets/sprites/hotdog_stand.png";
-const hotdog_image = "../assets/sprites/hotdog_256x128.png";
+const banner_image = sprite_prefix + "banner.png";
 
-const watermelon_image = "../assets/sprites/watermelon_64x64.png";
+const hotdog_stand_image = sprite_prefix + "hotdog_stand.png";
+const hotdog_image = sprite_prefix + "hotdog_256x128.png";
 
-const eaterIdleSprite = "../assets/sprites/the_eater_idle.png";
-const eaterHungrySprite = "../assets/sprites/the_eater_hungry.png";
-const eaterSatisfiedSprite = "../assets/sprites/the_eater_satisfied.png";
+const watermelon_image = sprite_prefix + "watermelon_64x64.png";
 
-const eatSFX = new Audio("../assets/audio/cartoon_chomp_sfx.mp3");
+const eaterIdleSprite = sprite_prefix + "the_eater_idle.png";
+const eaterHungrySprite = sprite_prefix + "the_eater_hungry.png";
+const eaterSatisfiedSprite = sprite_prefix + "the_eater_satisfied.png";
+
+const eatSFX = new Audio(audio_prefix + "cartoon_chomp_sfx.mp3");
+
 //const backgroundMusic = new Audio("../assets/audio/backgroundmusic.mp3");
 //const sizzleSFX = new Audio("../assets/audio/sizzleSFX.mp3");
 
