@@ -1,2 +1,5 @@
 # jaspercurry.dev
-a funny interactive website with links to Jaspers projects and resume
+you feed the guy and he takes you to my itch page.
+
+made using matter.js
+deployed on github pages

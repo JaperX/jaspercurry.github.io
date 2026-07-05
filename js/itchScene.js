@@ -32,8 +32,8 @@ const render = Render.create({
 
 
 //ASSETS
-const sprite_prefix = "sprites/";
-const audio_prefix = "audio/";
+const sprite_prefix = "../assets/sprites/";
+const audio_prefix = "../assets/audio/";
 
 const banner_image = sprite_prefix + "banner.png";
 
